@@ -15,8 +15,8 @@ const refs = {
 
 let pages = 1;
 let name = null;
-let arrLengthTotal = 100;
-let arrForm = 0;
+
+let arrLengthTotal = 40;
 let arrClick = 0;
 
 refs.button.setAttribute('hidden', false);
@@ -78,6 +78,7 @@ function creatMarkup(arr) {
   refs.div.insertAdjacentHTML('beforeend', markup);
 
   if (!arr.length) {
+    refs.button.setAttribute('hidden', false);
     Notify.failure(
       'Sorry, there are no images matching your search query. Please try again.'
     );
@@ -90,7 +91,8 @@ function onForm(evt) {
   evt.preventDefault();
   name = refs.input.value;
   const trim = name.trim();
-  refs.button.setAttribute('hidden', false);
+  // refs.button.setAttribute('hidden', false);
+
   if (!name) {
     Notify.failure(
       'Sorry, there are no images matching your search query. Please try again.'
@@ -107,9 +109,7 @@ function onForm(evt) {
 
   getUser(name, (pages = 1)).then(function (response) {
     creatMarkup(response.data.hits);
-    arrForm = response.data.hits.length;
-
-    if (!arrForm) {
+    if (!response.data.hits.length) {
       refs.button.setAttribute('hidden', false);
     } else {
       refs.button.removeAttribute('hidden');
@@ -122,16 +122,19 @@ function onForm(evt) {
 
 function onClick() {
   pages += 1;
-  arrLengthTotal += arrClick;
 
   getUser(name, pages).then(function (response) {
     creatMarkup(response.data.hits);
-
     formScroll();
 
     arrClick = response.data.hits.length;
 
-    if (arrLengthTotal === response.data.totalHits) {
+    arrLengthTotal += arrClick;
+    console.log(arrLengthTotal);
+
+    if (arrLengthTotal >= response.data.totalHits) {
+      arrLengthTotal = 40;
+
       refs.button.setAttribute('hidden', false);
 
       Notify.failure(
